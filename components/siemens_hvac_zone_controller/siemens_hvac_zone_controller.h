@@ -26,6 +26,8 @@ class SiemensHVACZoneController : public Component, public uart::UARTDevice {
 
  protected:
   std::vector<uint8_t> rx_buffer_;
+  
+  // FIX: Force 0xFF so the first loop pass pushes initial states to HA
   uint8_t current_zone_mask_{0x20};
 
   // 3. Update storage types to valve

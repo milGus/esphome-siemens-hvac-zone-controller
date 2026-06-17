@@ -46,7 +46,7 @@ Copy and paste this configuration profile into your device's configuration file 
 external_components:
   - source:
       type: git
-      url: [https://github.com/YOUR_GITHUB_USERNAME/esphome-siemens-hvac-zone-controller](https://github.com/YOUR_GITHUB_USERNAME/esphome-siemens-hvac-zone-controller)
+      url: [https://github.com/milGus/esphome-siemens-hvac-zone-controller](https://github.com/milGus/esphome-siemens-hvac-zone-controller)
     components: [ siemens_hvac_zone_controller ]
 
 # ---------------------------------------------------------
@@ -68,35 +68,35 @@ siemens_hvac_zone_controller:
   uart_id: bus_uart
 
 # ---------------------------------------------------------
-# 4. Map the Zone Switches to Home Assistant Toggles
+# 4. Map the Zone Valves to Home Assistant Toggles
 # ---------------------------------------------------------
-switch:
+valve:
   - platform: siemens_hvac_zone_controller
-    name: "Zone 1 Control"
+    name: "Zone 1"
     siemens_hvac_zone_controller_id: siemens_hub
     zone_number: 1
 
   - platform: siemens_hvac_zone_controller
-    name: "Zone 2 Control"
+    name: "Zone 2"
     siemens_hvac_zone_controller_id: siemens_hub
     zone_number: 2
 
   - platform: siemens_hvac_zone_controller
-    name: "Zone 3 Control"
+    name: "Zone 3"
     siemens_hvac_zone_controller_id: siemens_hub
     zone_number: 3
 
   - platform: siemens_hvac_zone_controller
-    name: "Zone 4 Control"
+    name: "Zone 4"
     siemens_hvac_zone_controller_id: siemens_hub
     zone_number: 4
 
   - platform: siemens_hvac_zone_controller
-    name: "Zone 5 Control"
+    name: "Zone 5"
     siemens_hvac_zone_controller_id: siemens_hub
     zone_number: 5
 
   - platform: siemens_hvac_zone_controller
-    name: "Zone 6 Control"
+    name: "Zone 6"
     siemens_hvac_zone_controller_id: siemens_hub
     zone_number: 6

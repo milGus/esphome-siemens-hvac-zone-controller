@@ -4,7 +4,9 @@ from esphome.components import uart, valve
 from esphome.const import CONF_ID
 
 CODEOWNERS = ["@milGus"]
-DEPENDENCIES = ["uart"]
+
+# FIX: Add "valve" here so ESPHome compiles the core valve library files!
+DEPENDENCIES = ["uart", "valve"]
 
 siemens_ns = cg.esphome_ns.namespace("siemens_hvac_zone_controller")
 SiemensController = siemens_ns.class_("SiemensHVACZoneController", cg.Component, uart.UARTDevice)

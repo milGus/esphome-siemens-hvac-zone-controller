@@ -26,6 +26,7 @@ esphome-siemens-hvac-zone-controller/
 │       ├── siemens_hvac_zone_controller.h
 │       └── siemens_hvac_zone_controller.cpp
 └── README.md
+
 # Using the Siemens HVAC Zone Controller Component
 
 To integrate this component into your ESPHome node, you will need to reference this GitHub repository as an external source, configure your UART bus, and define your zone entities.

@@ -10,17 +10,16 @@ namespace siemens_hvac_zone_controller {
 
 class SiemensHVACZoneController;
 
-// Custom Valve implementation that behaves exactly like a native Template Valve
 class SiemensHVACZoneValve : public valve::Valve, public Component {
  public:
   SiemensHVACZoneValve(SiemensHVACZoneController *parent, uint8_t zone_idx) 
-      : parent_(parent), zone_idx_(zone_idx) {}
+      : parent_(parent), zone_idx_(zone_idx) {
+    // THIS MATCHES THE YAML: Disables position-feedback requirements entirely
+    this->assumed_state_ = false;
+  }
 
   void setup() override;
   void dump_config() override;
-  
-  // This is the missing link: We force the component to report absolute states
-  valve::ValveType get_valve_type() { return valve::VALVE_TYPE_OPEN_CLOSE; }
 
  protected:
   void control(const valve::ValveCall &call) override;

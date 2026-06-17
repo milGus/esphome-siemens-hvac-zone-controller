@@ -26,13 +26,13 @@ void SiemensHVACZoneController::loop() {
         if (master_zone_mask != current_zone_mask_) {
           current_zone_mask_ = master_zone_mask;
           
-          if (zone_1_ != nullptr) zone_1_->publish_state(master_zone_mask & 0x01);
-          if (zone_2_ != nullptr) zone_2_->publish_state(master_zone_mask & 0x02);
-          if (zone_3_ != nullptr) zone_3_->publish_state(master_zone_mask & 0x04);
-          if (zone_4_ != nullptr) zone_4_->publish_state(master_zone_mask & 0x08);
-          if (zone_5_ != nullptr) zone_5_->publish_state(master_zone_mask & 0x10);
-          if (zone_6_ != nullptr) zone_6_->publish_state(master_zone_mask & 0x20);
-        }
+          if (zone_1_ != nullptr) zone_1_->publish_state((master_zone_mask & 0x01) ? valve::VALVE_OPEN : valve::VALVE_CLOSED);
+          if (zone_2_ != nullptr) zone_2_->publish_state((master_zone_mask & 0x02) ? valve::VALVE_OPEN : valve::VALVE_CLOSED);
+          if (zone_3_ != nullptr) zone_3_->publish_state((master_zone_mask & 0x04) ? valve::VALVE_OPEN : valve::VALVE_CLOSED);
+          if (zone_4_ != nullptr) zone_4_->publish_state((master_zone_mask & 0x08) ? valve::VALVE_OPEN : valve::VALVE_CLOSED);
+          if (zone_5_ != nullptr) zone_5_->publish_state((master_zone_mask & 0x10) ? valve::VALVE_OPEN : valve::VALVE_CLOSED);
+          if (zone_6_ != nullptr) zone_6_->publish_state((master_zone_mask & 0x20) ? valve::VALVE_OPEN : valve::VALVE_CLOSED);
+        }        
       }
       rx_buffer_.erase(rx_buffer_.begin(), rx_buffer_.begin() + 13);
     } else {

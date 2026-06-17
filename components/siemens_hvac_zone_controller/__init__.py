@@ -21,7 +21,6 @@ CONF_ZONE_4 = "zone_4"
 CONF_ZONE_5 = "zone_5"
 CONF_ZONE_6 = "zone_6"
 
-# FIX: Build on valve_schema to inherit all core framework properties safely
 ZONE_VALVE_SCHEMA = valve.valve_schema(SiemensHVACZoneValve).extend(cv.COMPONENT_SCHEMA)
 
 CONFIG_SCHEMA = cv.All(

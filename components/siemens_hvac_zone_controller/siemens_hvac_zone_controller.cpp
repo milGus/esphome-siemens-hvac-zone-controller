@@ -7,8 +7,15 @@ namespace siemens_hvac_zone_controller {
 static const char *const TAG = "siemens_hvac_zone_controller";
 
 void SiemensHVACZoneValve::control(const valve::ValveCall &call) {
-  // Your original YAML open_action and close_action both trigger the exact same frame write sequence
-  this->parent_->send_zone_command(this->zone_idx_);
+  if (call.get_position().has_value()) {
+    float target_position = *call.get_position();
+    
+    // 1. Instantly publish the target position to the UI to lock the toggle switch in place
+    this->publish_state(target_position);
+    
+    // 2. Fire your original 12-byte command array sequence to the hardware
+    this->parent_->send_zone_command(this->zone_idx_);
+  }
 }
 
 void SiemensHVACZoneController::setup() {

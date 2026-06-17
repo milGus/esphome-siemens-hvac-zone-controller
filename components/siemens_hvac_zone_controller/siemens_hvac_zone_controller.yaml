@@ -1,6 +1,6 @@
 # Define a fallback default value in case someone doesn't specify an ID
 substitutions:
-  uart_id: bus_uart
+  uart_id: siemens_bus_uart
 
 globals:
   - id: current_zone_mask

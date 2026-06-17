@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import uart, valve
-from esphome.const import CONF_ID
+from esphome.const import CONF_ID, CONF_NAME
 
 CODEOWNERS = ["@milGus"]
 DEPENDENCIES = ["uart", "valve"]
@@ -21,15 +21,21 @@ CONF_ZONE_4 = "zone_4"
 CONF_ZONE_5 = "zone_5"
 CONF_ZONE_6 = "zone_6"
 
+# FIX: Define a clean, explicit schema instead of referencing valve.VALVE_SCHEMA directly
+ZONE_VALVE_SCHEMA = cv.Schema({
+    cv.GenerateID(): cv.declare_id(SiemensHVACZoneValve),
+    cv.Required(CONF_NAME): cv.string,
+}).extend(cv.COMPONENT_SCHEMA)
+
 CONFIG_SCHEMA = cv.All(
     cv.Schema({
         cv.GenerateID(): cv.declare_id(SiemensHVACZoneController),
-        cv.Optional(CONF_ZONE_1): valve.VALVE_SCHEMA.extend({cv.GenerateID(): cv.declare_id(SiemensHVACZoneValve)}),
-        cv.Optional(CONF_ZONE_2): valve.VALVE_SCHEMA.extend({cv.GenerateID(): cv.declare_id(SiemensHVACZoneValve)}),
-        cv.Optional(CONF_ZONE_3): valve.VALVE_SCHEMA.extend({cv.GenerateID(): cv.declare_id(SiemensHVACZoneValve)}),
-        cv.Optional(CONF_ZONE_4): valve.VALVE_SCHEMA.extend({cv.GenerateID(): cv.declare_id(SiemensHVACZoneValve)}),
-        cv.Optional(CONF_ZONE_5): valve.VALVE_SCHEMA.extend({cv.GenerateID(): cv.declare_id(SiemensHVACZoneValve)}),
-        cv.Optional(CONF_ZONE_6): valve.VALVE_SCHEMA.extend({cv.GenerateID(): cv.declare_id(SiemensHVACZoneValve)}),
+        cv.Optional(CONF_ZONE_1): ZONE_VALVE_SCHEMA,
+        cv.Optional(CONF_ZONE_2): ZONE_VALVE_SCHEMA,
+        cv.Optional(CONF_ZONE_3): ZONE_VALVE_SCHEMA,
+        cv.Optional(CONF_ZONE_4): ZONE_VALVE_SCHEMA,
+        cv.Optional(CONF_ZONE_5): ZONE_VALVE_SCHEMA,
+        cv.Optional(CONF_ZONE_6): ZONE_VALVE_SCHEMA,
     }).extend(uart.UART_DEVICE_SCHEMA).extend(cv.COMPONENT_SCHEMA)
 )
 

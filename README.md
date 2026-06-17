@@ -46,7 +46,7 @@ Copy and paste this configuration profile into your device's configuration file 
 external_components:
   - source:
       type: git
-      url: [https://github.com/milGus/esphome-siemens-hvac-zone-controller](https://github.com/milGus/esphome-siemens-hvac-zone-controller)
+      url: https://github.com/milGus/esphome-siemens-hvac-zone-controller
     components: [ siemens_hvac_zone_controller ]
 
 # ---------------------------------------------------------

@@ -1,6 +1,5 @@
-# Define a fallback default value in case someone doesn't specify an ID
 substitutions:
-  uart_id: siemens_bus_uart
+  hvac_uart_id: siemens_bus_uart # Fallback default if not specified
 
 globals:
   - id: current_zone_mask
@@ -15,9 +14,9 @@ valve:
     assumed_state: false
     lambda: 'return (id(current_zone_mask) & 0x01) ? true : false;'
     open_action:
-      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x00, 0x03}; id(${uart_id}).write_array(frame.data(), frame.size());'
+      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x00, 0x03}; id(${hvac_uart_id}).write_array(frame.data(), frame.size());'
     close_action:
-      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x00, 0x03}; id(${uart_id}).write_array(frame.data(), frame.size());'
+      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x00, 0x03}; id(${hvac_uart_id}).write_array(frame.data(), frame.size());'
 
   - platform: template
     name: "Zone 2"
@@ -25,9 +24,9 @@ valve:
     assumed_state: false
     lambda: 'return (id(current_zone_mask) & 0x02) ? true : false;'
     open_action:
-      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x01, 0x03}; id(${uart_id}).write_array(frame.data(), frame.size());'
+      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x01, 0x03}; id(${hvac_uart_id}).write_array(frame.data(), frame.size());'
     close_action:
-      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x01, 0x03}; id(${uart_id}).write_array(frame.data(), frame.size());'
+      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x01, 0x03}; id(${hvac_uart_id}).write_array(frame.data(), frame.size());'
 
   - platform: template
     name: "Zone 3"
@@ -35,9 +34,9 @@ valve:
     assumed_state: false
     lambda: 'return (id(current_zone_mask) & 0x04) ? true : false;'
     open_action:
-      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x02, 0x03}; id(${uart_id}).write_array(frame.data(), frame.size());'
+      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x02, 0x03}; id(${hvac_uart_id}).write_array(frame.data(), frame.size());'
     close_action:
-      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x02, 0x03}; id(${uart_id}).write_array(frame.data(), frame.size());'
+      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x02, 0x03}; id(${hvac_uart_id}).write_array(frame.data(), frame.size());'
 
   - platform: template
     name: "Zone 4"
@@ -45,9 +44,9 @@ valve:
     assumed_state: false
     lambda: 'return (id(current_zone_mask) & 0x08) ? true : false;'
     open_action:
-      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x03, 0x03}; id(${uart_id}).write_array(frame.data(), frame.size());'
+      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x03, 0x03}; id(${hvac_uart_id}).write_array(frame.data(), frame.size());'
     close_action:
-      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x03, 0x03}; id(${uart_id}).write_array(frame.data(), frame.size());'
+      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x03, 0x03}; id(${hvac_uart_id}).write_array(frame.data(), frame.size());'
 
   - platform: template
     name: "Zone 5"
@@ -55,9 +54,9 @@ valve:
     assumed_state: false
     lambda: 'return (id(current_zone_mask) & 0x10) ? true : false;'
     open_action:
-      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x04, 0x03}; id(${uart_id}).write_array(frame.data(), frame.size());'
+      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x04, 0x03}; id(${hvac_uart_id}).write_array(frame.data(), frame.size());'
     close_action:
-      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x04, 0x03}; id(${uart_id}).write_array(frame.data(), frame.size());'
+      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x04, 0x03}; id(${hvac_uart_id}).write_array(frame.data(), frame.size());'
 
   - platform: template
     name: "Zone 6"
@@ -65,13 +64,13 @@ valve:
     assumed_state: false
     lambda: 'return (id(current_zone_mask) & 0x20) ? true : false;'
     open_action:
-      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x05, 0x03}; id(${uart_id}).write_array(frame.data(), frame.size());'
+      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x05, 0x03}; id(${hvac_uart_id}).write_array(frame.data(), frame.size());'
     close_action:
-      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x05, 0x03}; id(${uart_id}).write_array(frame.data(), frame.size());'
+      - lambda: 'std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, 0x05, 0x03}; id(${hvac_uart_id}).write_array(frame.data(), frame.size());'
 
-# Set up the debugger listener logic dynamically based on whatever UART bus is passed in
+# Dynamically hook the debugger parser sequence to whichever UART id is provided
 uart:
-  - id: ${uart_id}
+  - id: ${hvac_uart_id}
     debug:
       direction: BOTH
       dummy_receiver: true

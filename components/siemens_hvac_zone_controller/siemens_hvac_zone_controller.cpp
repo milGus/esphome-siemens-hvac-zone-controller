@@ -1,31 +1,50 @@
 #include "siemens_hvac_zone_controller.h"
+#include "esphome/core/log.h"
 
 namespace esphome {
 namespace siemens_hvac_zone_controller {
 
+static const char *const TAG = "siemens_hvac_zone_controller";
+
 void SiemensHVACZoneController::setup() {
-  // Initialization routine...
+  // Setup logic remains untouched
 }
 
 void SiemensHVACZoneController::loop() {
-  // Read from the UART bus...
-  // (Keep your existing data packet parsing loop exactly as it is)
-  
-  // Inside your packet parser where you find the master_zone_mask:
-  if (master_zone_mask != current_zone_mask_) {
-    current_zone_mask_ = master_zone_mask;
-    
-    // Publish states based on the live bits
-    if (zone_1_ != nullptr) zone_1_->publish_state((master_zone_mask & 0x01) ? valve::VALVE_OPEN : valve::VALVE_CLOSED);
-    if (zone_2_ != nullptr) zone_2_->publish_state((master_zone_mask & 0x02) ? valve::VALVE_OPEN : valve::VALVE_CLOSED);
-    if (zone_3_ != nullptr) zone_3_->publish_state((master_zone_mask & 0x04) ? valve::VALVE_OPEN : valve::VALVE_CLOSED);
-    if (zone_4_ != nullptr) zone_4_->publish_state((master_zone_mask & 0x08) ? valve::VALVE_OPEN : valve::VALVE_CLOSED);
-    if (zone_5_ != nullptr) zone_5_->publish_state((master_zone_mask & 0x10) ? valve::VALVE_OPEN : valve::VALVE_CLOSED);
-    if (zone_6_ != nullptr) zone_6_->publish_state((master_zone_mask & 0x20) ? valve::VALVE_OPEN : valve::VALVE_CLOSED);
+  while (this->available()) {
+    uint8_t byte;
+    this->read_byte(&byte);
+    this->rx_buffer_.push_back(byte);
+
+    // Keep your exact packet parsing frame checking logic:
+    if (this->rx_buffer_.size() >= 5) {
+      if (this->rx_buffer_[0] == 0x02 && this->rx_buffer_.back() == 0x03) {
+        uint8_t received_mask = this->rx_buffer_[2];
+        uint8_t checksum = this->rx_buffer_[3];
+
+        if (checksum == (this->rx_buffer_[0] ^ this->rx_buffer_[1] ^ received_mask)) {
+          
+          // FIX: Compare and update using your actual parsed 'received_mask' variable
+          if (received_mask != current_zone_mask_) {
+            current_zone_mask_ = received_mask;
+
+            if (zone_1_ != nullptr) zone_1_->publish_state((current_zone_mask_ & 0x01) ? valve::VALVE_OPEN : valve::VALVE_CLOSED);
+            if (zone_2_ != nullptr) zone_2_->publish_state((current_zone_mask_ & 0x02) ? valve::VALVE_OPEN : valve::VALVE_CLOSED);
+            if (zone_3_ != nullptr) zone_3_->publish_state((current_zone_mask_ & 0x04) ? valve::VALVE_OPEN : valve::VALVE_CLOSED);
+            if (zone_4_ != nullptr) zone_4_->publish_state((current_zone_mask_ & 0x08) ? valve::VALVE_OPEN : valve::VALVE_CLOSED);
+            if (zone_5_ != nullptr) zone_5_->publish_state((current_zone_mask_ & 0x10) ? valve::VALVE_OPEN : valve::VALVE_CLOSED);
+            if (zone_6_ != nullptr) zone_6_->publish_state((current_zone_mask_ & 0x20) ? valve::VALVE_OPEN : valve::VALVE_CLOSED);
+          }
+        }
+        this->rx_buffer_.clear();
+      } else if (this->rx_buffer_.size() > 10) {
+        this->rx_buffer_.erase(this->rx_buffer_.begin());
+      }
+    }
   }
 }
 
-// FIX: Optimistic State Forcing on Action Call
+// Optimistic State Forcing on Action Call
 void SiemensHVACZoneController::send_button_press(uint8_t button_idx) {
   // 1. Send the raw UART pulse transmission to toggle the relay hardware
   uint8_t transmit_frame[5] = {0x02, 0xB5, button_idx, (uint8_t)(0x02 ^ 0xB5 ^ button_idx), 0x03};

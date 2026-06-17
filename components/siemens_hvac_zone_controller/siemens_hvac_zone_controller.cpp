@@ -57,11 +57,21 @@ void SiemensHVACZoneController::loop() {
     }
   }
 }
-
 void SiemensHVACZoneController::send_zone_command(uint8_t zone_idx, bool open) {
-  // Your EXACT 12-byte control payload structures mapped cleanly by your index targets
+  // 1. Construct and send your exact 12-byte payload frame
   std::vector<uint8_t> frame = {0x02, 0x00, 0x22, 0x00, 0x1F, 0x01, 0x00, 0x01, 0x0C, 0x51, zone_idx, 0x03};
   this->write_array(frame.data(), frame.size());
+
+  // 2. Clear out any pending stale feedback bytes sitting in the serial hardware buffer
+  this->rx_buffer_.clear();
+
+  // 3. Update our internal tracking mask optimistically so the next incoming 
+  // stale packets are cleanly ignored until the master panel applies the update.
+  if (open) {
+    this->current_zone_mask_ |= (1 << zone_idx);  // Set bit to 1 (Open)
+  } else {
+    this->current_zone_mask_ &= ~(1 << zone_idx); // Clear bit to 0 (Closed)
+  }
 }
 
 }  // namespace siemens_hvac_zone_controller

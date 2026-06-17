@@ -9,7 +9,7 @@ Unlike traditional implementations that try to "hijack" or act as the main maste
 - **True Local Fail-Safe:** If Home Assistant goes offline, your physical wall controller continues to work perfectly without error codes or interruptions.
 - **Passive State Syncing:** Automatically monitors the active system mask broadcast by the Master panel to update your Home Assistant entities instantly.
 - **Zero Bus Contention:** Does not blast persistent heartbeat loops; only writes to the UART lines during a physical or virtual toggle event.
-- **Native ESPHome Entities:** Exposes the zones as clean, individual `switch` entities without requiring complex YAML lambdas.
+- **Native ESPHome Entities:** Exposes the zones as clean, individual `valve` entities without requiring complex YAML lambdas.
 
 ---
 

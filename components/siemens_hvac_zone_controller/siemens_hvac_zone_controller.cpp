@@ -10,26 +10,23 @@ void SiemensHVACZoneValve::control(const valve::ValveCall &call) {
   if (call.get_position().has_value()) {
     float target_position = *call.get_position();
     
-    // Convert target position float directly to a clean boolean state
-    bool target_state = (target_position > 0.5f);
+    // Force absolute clamp to remove transition states
+    this->position = (target_position > 0.5f) ? 1.0f : 0.0f;
+    this->current_operation = valve::VALVE_OPERATION_IDLE;
+    this->publish_state();
     
-    // 1. Force the UI to snap to position instantly using native boolean assignment
-    this->publish_state(target_state ? 1.0f : 0.0f);
-    
-    // 2. Lock out incoming status packets for 1500ms so the physical relays have time to flip
+    // Set command window safety timeout (1500ms)
     this->parent_->set_lock_timeout(1500);
-    
-    // 3. Fire the command frame
     this->parent_->send_zone_command(this->zone_idx_);
   }
 }
 
 void SiemensHVACZoneController::setup() {
-  // Initialization hook
+  // Initialization entry point
 }
 
 void SiemensHVACZoneController::dump_config() {
-  ESP_LOGCONFIG(TAG, "Siemens HVAC Zone Controller Component Active");
+  ESP_LOGCONFIG(TAG, "Siemens HVAC Zone Controller Natively Loaded");
 }
 
 void SiemensHVACZoneController::loop() {
@@ -47,18 +44,19 @@ void SiemensHVACZoneController::loop() {
         if (this->rx_buffer_[12] == 0x03) {
           uint8_t master_zone_mask = this->rx_buffer_[11];
           
-          // Only process incoming updates if our optimistic change window is clear
           if (millis() > this->lock_timeout_ms_) {
             if (master_zone_mask != this->current_zone_mask_) {
               this->current_zone_mask_ = master_zone_mask;
               
-              // FIX: Explicitly evaluate bitmasks into exact boolean states, preventing mid-travel float locks
-              if (this->zones_[0] != nullptr) this->zones_[0]->publish_state((master_zone_mask & 0x01) ? 1.0f : 0.0f);
-              if (this->zones_[1] != nullptr) this->zones_[1]->publish_state((master_zone_mask & 0x02) ? 1.0f : 0.0f);
-              if (this->zones_[2] != nullptr) this->zones_[2]->publish_state((master_zone_mask & 0x04) ? 1.0f : 0.0f);
-              if (this->zones_[3] != nullptr) this->zones_[3]->publish_state((master_zone_mask & 0x08) ? 1.0f : 0.0f);
-              if (this->zones_[4] != nullptr) this->zones_[4]->publish_state((master_zone_mask & 0x10) ? 1.0f : 0.0f);
-              if (this->zones_[5] != nullptr) this->zones_[5]->publish_state((master_zone_mask & 0x20) ? 1.0f : 0.0f);
+              // Map all 6 zones directly into exact properties to bypass transition timers
+              uint8_t masks[6] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20};
+              for (int i = 0; i < 6; i++) {
+                if (this->zones_[i] != nullptr) {
+                  this->zones_[i]->position = (master_zone_mask & masks[i]) ? 1.0f : 0.0f;
+                  this->zones_[i]->current_operation = valve::VALVE_OPERATION_IDLE;
+                  this->zones_[i]->publish_state();
+                }
+              }
             }
           }
         }

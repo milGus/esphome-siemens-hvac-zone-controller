@@ -21,11 +21,8 @@ CONF_ZONE_4 = "zone_4"
 CONF_ZONE_5 = "zone_5"
 CONF_ZONE_6 = "zone_6"
 
-# FIX: Define a clean, explicit schema instead of referencing valve.VALVE_SCHEMA directly
-ZONE_VALVE_SCHEMA = cv.Schema({
-    cv.GenerateID(): cv.declare_id(SiemensHVACZoneValve),
-    cv.Required(CONF_NAME): cv.string,
-}).extend(cv.COMPONENT_SCHEMA)
+# FIX: Build on valve_schema to inherit all core framework properties safely
+ZONE_VALVE_SCHEMA = valve.valve_schema(SiemensHVACZoneValve).extend(cv.COMPONENT_SCHEMA)
 
 CONFIG_SCHEMA = cv.All(
     cv.Schema({

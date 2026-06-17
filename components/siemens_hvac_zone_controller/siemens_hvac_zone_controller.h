@@ -37,15 +37,16 @@ class SiemensHVACZoneController : public Component, public uart::UARTDevice {
   valve::Valve *zone_6_{nullptr};
 };
 
-// 4. Update intermediary class to inherit from Valve instead of Switch
+// Intermediary class passing frontend UI valve toggles into the core hardware driver
 class SiemensHVACZoneValve : public valve::Valve {
  public:
   SiemensHVACZoneValve(SiemensHVACZoneController *parent, uint8_t button_idx) 
       : parent_(parent), button_idx_(button_idx) {}
  protected:
-  // Valve component uses control_action instead of write_state
-  void control_action(valve::ValveControlAction action) override {
-    // Both opening and closing actions send the toggle command to this specific bus protocol
+  // FIX: Using valve::ValveCall instead of ValveControlAction
+  void control(const valve::ValveCall &call) override {
+    // Whenever an Open, Close, or Stop command comes through, 
+    // trigger our transient bus toggle mechanism.
     parent_->send_button_press(button_idx_);
   }
   SiemensHVACZoneController *parent_;

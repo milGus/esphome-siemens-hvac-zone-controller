@@ -10,6 +10,14 @@ void SiemensHVACZoneController::setup() {
   // Setup logic remains untouched
 }
 
+// FIX: Add the missing dump_config definition to satisfy the linker
+void SiemensHVACZoneController::dump_config() {
+  ESP_LOGCONFIG(TAG, "Siemens HVAC Zone Controller");
+}
+
+void SiemensHVACZoneController::loop() {
+  while (this->available()) {
+    // ... rest of your loop code remains exactly the same ...
 void SiemensHVACZoneController::loop() {
   while (this->available()) {
     uint8_t byte;

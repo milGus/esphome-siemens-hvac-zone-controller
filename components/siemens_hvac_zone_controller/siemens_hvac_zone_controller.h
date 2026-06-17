@@ -35,8 +35,7 @@ class SiemensHVACZoneController : public Component, public uart::UARTDevice {
   void loop() override;
   void dump_config() override;
 
-  void send_zone_command(uint8_t zone_idx, bool open);
-  uint8_t get_current_zone_mask() const { return current_zone_mask_; }
+  void send_zone_command(uint8_t zone_idx);
 
   void set_zone_1(valve::Valve *v) { zones_[0] = v; }
   void set_zone_2(valve::Valve *v) { zones_[1] = v; }
@@ -47,7 +46,7 @@ class SiemensHVACZoneController : public Component, public uart::UARTDevice {
 
  protected:
   std::vector<uint8_t> rx_buffer_;
-  uint8_t current_zone_mask_{0x08}; // Initialized to your baseline configuration state (Zone 4 ON)
+  uint8_t current_zone_mask_{0x08}; // Your exact original default init state (Zone 4 ON)
   valve::Valve *zones_[6]{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 };
 

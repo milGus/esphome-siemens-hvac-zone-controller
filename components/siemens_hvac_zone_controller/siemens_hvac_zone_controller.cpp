@@ -6,27 +6,34 @@ namespace siemens_hvac_zone_controller {
 
 static const char *const TAG = "siemens_hvac_zone_controller";
 
+void SiemensHVACZoneValve::setup() {
+  // Initialize state to closed on boot to match framework defaults
+  this->position = 0.0f;
+  this->current_operation = valve::VALVE_OPERATION_IDLE;
+}
+
+void SiemensHVACZoneValve::dump_config() {
+  ESP_LOGCONFIG(TAG, "Siemens HVAC Zone Valve Assigned");
+}
+
 void SiemensHVACZoneValve::control(const valve::ValveCall &call) {
   if (call.get_position().has_value()) {
     float target_position = *call.get_position();
+    bool open_state = (target_position > 0.5f);
     
-    // Force absolute clamp to remove transition states
-    this->position = (target_position > 0.5f) ? 1.0f : 0.0f;
+    // Force absolute state updates to prevent transition delays
+    this->position = open_state ? 1.0f : 0.0f;
     this->current_operation = valve::VALVE_OPERATION_IDLE;
     this->publish_state();
     
-    // Set command window safety timeout (1500ms)
+    // Lock out incoming status updates briefly while processing the serial command
     this->parent_->set_lock_timeout(1500);
     this->parent_->send_zone_command(this->zone_idx_);
   }
 }
 
-void SiemensHVACZoneController::setup() {
-  // Initialization entry point
-}
-
 void SiemensHVACZoneController::dump_config() {
-  ESP_LOGCONFIG(TAG, "Siemens HVAC Zone Controller Natively Loaded");
+  ESP_LOGCONFIG(TAG, "Siemens HVAC Zone Controller Master Component Active");
 }
 
 void SiemensHVACZoneController::loop() {
@@ -48,13 +55,17 @@ void SiemensHVACZoneController::loop() {
             if (master_zone_mask != this->current_zone_mask_) {
               this->current_zone_mask_ = master_zone_mask;
               
-              // Map all 6 zones directly into exact properties to bypass transition timers
               uint8_t masks[6] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20};
               for (int i = 0; i < 6; i++) {
                 if (this->zones_[i] != nullptr) {
-                  this->zones_[i]->position = (master_zone_mask & masks[i]) ? 1.0f : 0.0f;
-                  this->zones_[i]->current_operation = valve::VALVE_OPERATION_IDLE;
-                  this->zones_[i]->publish_state();
+                  float new_pos = (master_zone_mask & masks[i]) ? 1.0f : 0.0f;
+                  
+                  // Update states if a change is detected from the master controller
+                  if (this->zones_[i]->position != new_pos) {
+                    this->zones_[i]->position = new_pos;
+                    this->zones_[i]->current_operation = valve::VALVE_OPERATION_IDLE;
+                    this->zones_[i]->publish_state();
+                  }
                 }
               }
             }

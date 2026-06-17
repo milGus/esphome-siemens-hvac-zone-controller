@@ -46,7 +46,7 @@ class SiemensHVACZoneController : public Component, public uart::UARTDevice {
 
  protected:
   std::vector<uint8_t> rx_buffer_;
-  uint8_t current_zone_mask_{0x08}; // Your exact original default init state (Zone 4 ON)
+  uint8_t current_zone_mask_{0x08}; 
   valve::Valve *zones_[6]{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 };
 

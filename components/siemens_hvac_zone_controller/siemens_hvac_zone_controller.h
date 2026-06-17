@@ -13,10 +13,7 @@ class SiemensHVACZoneController;
 class SiemensHVACZoneValve : public valve::Valve, public Component {
  public:
   SiemensHVACZoneValve(SiemensHVACZoneController *parent, uint8_t zone_idx) 
-      : parent_(parent), zone_idx_(zone_idx) {
-    // THIS MATCHES THE YAML: Disables position-feedback requirements entirely
-    this->assumed_state_ = false;
-  }
+      : parent_(parent), zone_idx_(zone_idx) {}
 
   void setup() override;
   void dump_config() override;
@@ -24,10 +21,12 @@ class SiemensHVACZoneValve : public valve::Valve, public Component {
  protected:
   void control(const valve::ValveCall &call) override;
 
+  // FIX: This natively tells ESPHome that the state is known and optimistic (assumed_state: false)
   valve::ValveTraits get_traits() override {
     auto traits = valve::ValveTraits();
     traits.set_supports_position(false);
     traits.set_supports_stop(false);
+    traits.set_is_assumed_state(false); 
     return traits;
   }
 

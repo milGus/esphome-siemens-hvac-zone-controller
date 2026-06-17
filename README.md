@@ -18,8 +18,17 @@ Unlike traditional implementations that try to "hijack" or act as the main maste
 To integrate this component into your ESPHome node, you will need to reference this GitHub repository as an external source, configure your UART bus, and define your zone entities.
 
 ---
+### 1. Hardware Connections
 
-### 1. Quick Start YAML Template
+The Siemens Bus is a single wire bus that is pulled up to 12V. The RJ45 pinout of the User Panel is as follows:
+
+![6 PIN RJ12 User Panel Connector](images/rj12-siemens.png)
+
+ESP Connection schematic:
+
+![Hardware Connections](images/esphome-siemens-circuit.png)
+
+### 2. Quick Start YAML Template
 
 Copy and paste this configuration profile into your device's configuration file (`.yaml`). Replace `YOUR_GITHUB_USERNAME` with your actual GitHub username.
 

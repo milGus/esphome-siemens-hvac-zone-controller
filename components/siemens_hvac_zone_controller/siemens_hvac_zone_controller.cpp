@@ -7,32 +7,25 @@ namespace siemens_hvac_zone_controller {
 static const char *const TAG = "siemens_hvac_zone_controller";
 
 void SiemensHVACZoneController::setup() {
-  // Setup logic remains untouched
+  // Setup logic
 }
 
-// FIX: Add the missing dump_config definition to satisfy the linker
 void SiemensHVACZoneController::dump_config() {
   ESP_LOGCONFIG(TAG, "Siemens HVAC Zone Controller");
 }
 
 void SiemensHVACZoneController::loop() {
   while (this->available()) {
-    // ... rest of your loop code remains exactly the same ...
-void SiemensHVACZoneController::loop() {
-  while (this->available()) {
     uint8_t byte;
     this->read_byte(&byte);
     this->rx_buffer_.push_back(byte);
 
-    // Keep your exact packet parsing frame checking logic:
     if (this->rx_buffer_.size() >= 5) {
       if (this->rx_buffer_[0] == 0x02 && this->rx_buffer_.back() == 0x03) {
         uint8_t received_mask = this->rx_buffer_[2];
         uint8_t checksum = this->rx_buffer_[3];
 
         if (checksum == (this->rx_buffer_[0] ^ this->rx_buffer_[1] ^ received_mask)) {
-          
-          // FIX: Compare and update using your actual parsed 'received_mask' variable
           if (received_mask != current_zone_mask_) {
             current_zone_mask_ = received_mask;
 
@@ -52,17 +45,13 @@ void SiemensHVACZoneController::loop() {
   }
 }
 
-// Optimistic State Forcing on Action Call
 void SiemensHVACZoneController::send_button_press(uint8_t button_idx) {
-  // 1. Send the raw UART pulse transmission to toggle the relay hardware
   uint8_t transmit_frame[5] = {0x02, 0xB5, button_idx, (uint8_t)(0x02 ^ 0xB5 ^ button_idx), 0x03};
   this->write_array(transmit_frame, 5);
 
-  // 2. Compute an immediate optimistic state flip so Home Assistant reflects the toggle instantly
   uint8_t target_bit = (1 << button_idx);
-  bool is_now_open = !(current_zone_mask_ & target_bit); // Invert the tracked bit state
+  bool is_now_open = !(current_zone_mask_ & target_bit);
   
-  // 3. Force update the front-end entity right away
   valve::Valve* target_valve = nullptr;
   switch(button_idx) {
     case 0: target_valve = zone_1_; break;

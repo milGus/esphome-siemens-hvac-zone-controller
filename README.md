@@ -22,11 +22,18 @@ To integrate this component into your ESPHome node, you will need to reference t
 
 The Siemens Bus is a single wire bus that is pulled up to 12V. The RJ45 pinout of the User Panel is as follows:
 
-![6 PIN RJ12 User Panel Connector](images/rj12-siemens.png)
+| Pin | Function |
+|-----|----------|
+| 1   | 24V      |
+| 2   | Ground   |
+| 3   | Ground   |
+| 4   | BUS      |
+| 5   | Ground   |
+| 6   | 24V      |
 
 ESP Connection schematic:
 
-![Hardware Connections](images/esphome-siemens-circuit.png)
+![Hardware Connections](images//esphome-siemens-circuit.jpg)
 
 ### 2. Quick Start YAML Template
 

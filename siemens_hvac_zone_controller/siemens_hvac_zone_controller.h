@@ -2,7 +2,7 @@
 
 #include "esphome/core/component.h"
 #include "esphome/components/uart/uart.h"
-#include "esphome/components/switch/switch.h"
+#include "esphome/components/valve/valve.h" // 1. Change switch to valve header
 #include <vector>
 
 namespace esphome {
@@ -14,36 +14,38 @@ class SiemensHVACZoneController : public Component, public uart::UARTDevice {
   void loop() override;
   void dump_config() override;
 
-  // Setters for the 6 tracking switches
-  void set_zone_1(switch_::Switch *sw) { zone_1_ = sw; }
-  void set_zone_2(switch_::Switch *sw) { zone_2_ = sw; }
-  void set_zone_3(switch_::Switch *sw) { zone_3_ = sw; }
-  void set_zone_4(switch_::Switch *sw) { zone_4_ = sw; }
-  void set_zone_5(switch_::Switch *sw) { zone_5_ = sw; }
-  void set_zone_6(switch_::Switch *sw) { zone_6_ = sw; }
+  // 2. Change setters to point to valve pointers
+  void set_zone_1(valve::Valve *vl) { zone_1_ = vl; }
+  void set_zone_2(valve::Valve *vl) { zone_2_ = vl; }
+  void set_zone_3(valve::Valve *vl) { zone_3_ = vl; }
+  void set_zone_4(valve::Valve *vl) { zone_4_ = vl; }
+  void set_zone_5(valve::Valve *vl) { zone_5_ = vl; }
+  void set_zone_6(valve::Valve *vl) { zone_6_ = vl; }
 
-  // Sends the transient toggle request onto the bus
   void send_button_press(uint8_t button_idx);
 
  protected:
   std::vector<uint8_t> rx_buffer_;
   uint8_t current_zone_mask_{0x20};
 
-  switch_::Switch *zone_1_{nullptr};
-  switch_::Switch *zone_2_{nullptr};
-  switch_::Switch *zone_3_{nullptr};
-  switch_::Switch *zone_4_{nullptr};
-  switch_::Switch *zone_5_{nullptr};
-  switch_::Switch *zone_6_{nullptr};
+  // 3. Update storage types to valve
+  valve::Valve *zone_1_{nullptr};
+  valve::Valve *zone_2_{nullptr};
+  valve::Valve *zone_3_{nullptr};
+  valve::Valve *zone_4_{nullptr};
+  valve::Valve *zone_5_{nullptr};
+  valve::Valve *zone_6_{nullptr};
 };
 
-// Intermediary class passing frontend UI switch toggles into the core hardware driver
-class SiemensHVACZoneSwitch : public switch_::Switch {
+// 4. Update intermediary class to inherit from Valve instead of Switch
+class SiemensHVACZoneValve : public valve::Valve {
  public:
-  SiemensHVACZoneSwitch(SiemensHVACZoneController *parent, uint8_t button_idx) 
+  SiemensHVACZoneValve(SiemensHVACZoneController *parent, uint8_t button_idx) 
       : parent_(parent), button_idx_(button_idx) {}
  protected:
-  void write_state(bool state) override {
+  // Valve component uses control_action instead of write_state
+  void control_action(valve::ValveControlAction action) override {
+    // Both opening and closing actions send the toggle command to this specific bus protocol
     parent_->send_button_press(button_idx_);
   }
   SiemensHVACZoneController *parent_;

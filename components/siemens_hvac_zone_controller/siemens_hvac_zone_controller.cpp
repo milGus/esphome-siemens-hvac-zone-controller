@@ -6,6 +6,9 @@ namespace siemens_hvac_zone_controller {
 
 static const char *const TAG = "siemens_hvac_zone_controller";
 
+// Global file-level tracker for the optimistic lock timer
+static uint32_t global_lock_timeout_ms = 0;
+
 void SiemensHVACZoneValve::control(const valve::ValveCall &call) {
   if (call.get_position().has_value()) {
     float target_position = *call.get_position();
@@ -13,8 +16,8 @@ void SiemensHVACZoneValve::control(const valve::ValveCall &call) {
     // 1. Force the UI state to update instantly
     this->publish_state(target_position);
     
-    // 2. Set the optimistic lock timer on the parent controller (ignore incoming UART bytes for 1500ms)
-    this->parent_->set_lock_timeout(1500);
+    // 2. Lock out incoming status frames for 1500 milliseconds
+    global_lock_timeout_ms = millis() + 1500;
     
     // 3. Fire the exact 12-byte command array sequence
     this->parent_->send_zone_command(this->zone_idx_);
@@ -40,8 +43,8 @@ void SiemensHVACZoneController::loop() {
         if (this->rx_buffer_[12] == 0x03) {
           uint8_t master_zone_mask = this->rx_buffer_[11];
           
-          // CRITICAL FIX: Only accept status updates if our optimistic lock timer has expired
-          if (millis() > this->lock_timeout_ms_) {
+          // FIX: Use the file-level static timer to protect state updates
+          if (millis() > global_lock_timeout_ms) {
             if (master_zone_mask != this->current_zone_mask_) {
               this->current_zone_mask_ = master_zone_mask;
               

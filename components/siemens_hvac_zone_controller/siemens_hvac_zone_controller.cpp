@@ -20,7 +20,6 @@ void SiemensHVACZoneValve::control(const valve::ValveCall &call) {
     float target_position = *call.get_position();
     bool open_state = (target_position > 0.5f);
     
-    // Snap target positions and publish instantly
     this->position = open_state ? 1.0f : 0.0f;
     this->current_operation = valve::VALVE_OPERATION_IDLE;
     this->publish_state();
@@ -50,8 +49,9 @@ void SiemensHVACZoneController::loop() {
           uint8_t master_zone_mask = this->rx_buffer_[11];
           
           if (millis() > this->lock_timeout_ms_) {
+            // FIX: Added the correct trailing underscore here
             if (master_zone_mask != this->current_zone_mask_) {
-              this->current_zone_mask = master_zone_mask;
+              this->current_zone_mask_ = master_zone_mask;
               
               uint8_t masks[6] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20};
               for (int i = 0; i < 6; i++) {

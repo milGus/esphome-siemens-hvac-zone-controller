@@ -42,13 +42,21 @@ class SiemensHVACZoneValve : public valve::Valve {
  public:
   SiemensHVACZoneValve(SiemensHVACZoneController *parent, uint8_t button_idx) 
       : parent_(parent), button_idx_(button_idx) {}
+
  protected:
-  // FIX: Using valve::ValveCall instead of ValveControlAction
+  // 1. FIX: Implement get_traits() to tell ESPHome this is a standard open/close damper
+  valve::ValveTraits get_traits() override {
+    auto traits = valve::ValveTraits();
+    traits.set_supports_position(false); // We don't support partial position percentages (e.g. 45% open)
+    traits.set_supports_stop(false);     // We don't support intermediate stop commands
+    return traits;
+  }
+
+  // Whenever an Open or Close command comes through, trigger our bus toggle mechanism
   void control(const valve::ValveCall &call) override {
-    // Whenever an Open, Close, or Stop command comes through, 
-    // trigger our transient bus toggle mechanism.
     parent_->send_button_press(button_idx_);
   }
+
   SiemensHVACZoneController *parent_;
   uint8_t button_idx_;
 };
